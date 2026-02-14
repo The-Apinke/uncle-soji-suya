@@ -1,0 +1,12 @@
+llama-index
+llama-index-llms-openai
+llama-index-embeddings-openai
+llama-index-vector-stores-pinecone
+pinecone-client
+openai
+gradio
+gspread
+google-auth
+google-oauth2-httplib2
+google-api-python-client
+uvicorn==0.24.0
