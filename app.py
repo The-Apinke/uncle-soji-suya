@@ -35,9 +35,9 @@ Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
 Settings.chunk_size  = 512
 Settings.chunk_overlap = 50
 
-print("✅ Setup complete")
+print("Setup complete")
 
-# ── PHASE 2: PINECONE ────────────────────────────────────────
+# PHASE 2: PINECONE 
 
 index_name = "uncle-soji-suya"
 
@@ -56,13 +56,13 @@ pinecone_index = pc.Index(index_name)
 if pinecone_index.describe_index_stats()['total_vector_count'] == 0:
     vector_store    = PineconeVectorStore(pinecone_index=pinecone_index)
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    documents       = SimpleDirectoryReader("suya_docs").load_data()
+    documents       = SimpleDirectoryReader(".").load_data()
     VectorStoreIndex.from_documents(documents, storage_context=storage_context)
-    print(f"✅ Indexed {len(documents)} documents into Pinecone")
+    print(f" Indexed {len(documents)} documents into Pinecone")
 else:
-    print("✅ Loaded existing Pinecone index")
+    print(" Loaded existing Pinecone index")
 
-# ── PHASE 3: DOCUMENT SEARCH ─────────────────────────────────
+#  PHASE 3: DOCUMENT SEARCH 
 
 def query_documents(query: str, topic_hint: str = "") -> str:
     embedding = openai_client.embeddings.create(
@@ -74,7 +74,7 @@ def query_documents(query: str, topic_hint: str = "") -> str:
     texts   = [m.metadata.get("text", "") for m in results.matches if m.metadata]
     return "\n\n".join(texts) if texts else "No information found."
 
-print("✅ Document search ready")
+print(" Document search ready")
 
 # ── PHASE 4: GOOGLE SHEETS ───────────────────────────────────
 
@@ -97,7 +97,7 @@ except:
     worksheet.append_row(["Timestamp","Order ID","Customer Email","Items",
                           "Subtotal","Delivery Location","Delivery Fee","Total","Status","Notes"])
 
-print("✅ Google Sheets ready")
+print(" Google Sheets ready")
 
 # ── PHASE 5: ORDER FUNCTIONS ─────────────────────────────────
 
@@ -150,7 +150,7 @@ def place_order(items_json: str, delivery_location: str, customer_email: str) ->
     lines        = "\n".join([f"  {i['quantity']}x {i['item']} — NGN {i['total']:,}" for i in item_details])
     delivery_line = f"Delivery to {delivery_location}: NGN {delivery_fee:,}" if not is_pickup else "Pickup (no delivery fee)"
 
-    return (f"Order confirmed! ✅\n\nOrder ID: {order_id}\n\n{lines}\n\n"
+    return (f"Order confirmed! \n\nOrder ID: {order_id}\n\n{lines}\n\n"
             f"Subtotal: NGN {subtotal:,}\n{delivery_line}\nTotal: NGN {total:,}\n\n"
             f"Confirmation sent to {customer_email}. Ready in 30–45 minutes.")
 
@@ -186,7 +186,7 @@ def _send_emails(order_id, item_details, subtotal, delivery_location, delivery_f
         except:
             pass
 
-print("✅ Order functions ready")
+print(" Order functions ready")
 
 # ── PHASE 6: AGENT ───────────────────────────────────────────
 
@@ -220,14 +220,14 @@ TOOL_MAP = {
 SYSTEM_PROMPT = """You are the AI assistant for Uncle Soji's Suya Spot, a suya restaurant in Yaba, Lagos.
 
 BEHAVIOUR:
-- Warm, friendly and concise
-- Always use search tools — never assume prices or hours from memory
-- Only call place_order after customer confirms their full order
+- Warm, friendly, and concise
+- Always use search tools, never assume prices or hours from memory
+- Only call place_order after the customer confirms their full order
 
 ORDERING FLOW:
 1. Clarify items and quantities
-2. Ask delivery or pickup
-3. If delivery, ask for area
+2. Ask for delivery or pickup
+3. If delivery, ask for the area
 4. Confirm order summary with total
 5. Ask for email
 6. Call place_order"""
@@ -269,7 +269,7 @@ def chat(user_id: str, message: str) -> str:
     conversation_history.setdefault(user_id, []).append({"query": message, "response": response})
     return response
 
-print("✅ Agent ready")
+print("Agent ready")
 
 # ── PHASE 7: VOICE ───────────────────────────────────────────
 
@@ -285,7 +285,7 @@ def speak_response(text: str, output_path: str = "/tmp/response.mp3") -> str:
     ).stream_to_file(output_path)
     return output_path
 
-print("✅ Voice ready")
+print("Voice ready")
 
 # ── PHASE 8: GRADIO INTERFACE ────────────────────────────────
 
